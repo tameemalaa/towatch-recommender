@@ -1,39 +1,29 @@
-from fastapi import APIRouter , Depends , Form , status , Response , HTTPException ,Request
-from pydantic import BaseModel
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import APIRouter , Request
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from typing import Optional
+from app.logic.public import *
+from app.schemas import *
 
 router = APIRouter(tags=['Public'])
-templates = Jinja2Templates(directory="../templates")
+templates = Jinja2Templates(directory="templates")
 
-#DATABASE_HANDLER
 
-@router.get('/',response_class = HTMLResponse)
+@router.get('/',status_code = 200,response_class = HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request, "test": "tessst"})
+    return templates.TemplateResponse("index.html", {"request": request})
 
+@router.post('/movieupdate',status_code = 200)
+def movie_update(input: str):
+    return {'movies' :update_movie(input)}
 
-@router.get('/about')
-def about():
-    return {"about " : " fml square" , " about2 " : " I'm a json "}
+@router.get('/moviesearch',status_code = 200,response_class = HTMLResponse)
+def movie_search(request: Request):
+    return templates.TemplateResponse("moviesearch.html", {"request": request})
 
-@router.get('/search')
-def search():
-    return {"search " : " fml square" , " search " : " I'm a json "}
+@router.get('/recommend',status_code = 301,response_class = HTMLResponse)
+def recommend(input: str,request: Request):
+    return templates.TemplateResponse("results.html", {"request": request,'data':recommend_one(input) })
 
-@router.get('/results')
-def results():
-    return {"results " : " fml square" , " results " : " I'm a json "}
-
-@router.get('/movie/')
-def show_movie(id:int):
-    pass
-
-@router.post('/custom')
-def recommender():
-    pass
-
-@router.post('/extract')
-def extract():
-    pass
+@router.get('/recommends',status_code = 301,response_class = HTMLResponse)
+def recommends(movie: str,request: Request):
+    return templates.TemplateResponse("results.html", {"request": request,'data': recommend_three(movie.split(','))})

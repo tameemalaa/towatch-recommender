@@ -5,28 +5,40 @@ DB = "demo"
 COLLECTION = "watch"
 
 class DatabaseHandler:
-    def _init_(self, client: str = CLIENT, db: str = DB, collection: str = COLLECTION):
-        self.client = MongoClient(client)
-        self.db = self.client[db]
-        self.collection = self.db[collection]
+    client = MongoClient(CLIENT)
+    db = client[DB]
+    collection = db[COLLECTION]
+    def _init_(self):
 
+        print(self.collection)
+        
     def get_collection(self):
         return self.collection.find({})
 
     def create(self, movie):
-        if not self.db.find_one({"_id": movie["_id"]}):
-            self.db.insert_one(movie)
+        if not self.collection.find_one({"title": movie["title"]}):
+            self.collection.insert_one(movie)
+            return movie
         else:
-            print("ERR:OVERRIDING EXISTING ID")
+            return 
 
     def read_by_name(self, movie_name):
         try:
-            return self.db.find_one({"name": movie_name})
+            return self.collection.find_one({"title": movie_name})
         except:
             print("Movie not found")
+            
+    def read_by_id(self, id):
+        try:
+            return self.collection.find_one({"_id": id})
+        except:
+            print("Movie not found")
+            
 
-    def read_by_genre(self, e):
-        return self.db.find_one({"genre": e})
-
-    def read_by_lang(self, lang):
-        pass
+    def read_by_letters(self, letter):
+        try:
+            letter = letter.title()
+            return self.collection.find({"title": { "$regex": f"^{letter}" }})
+        except:
+            print("Movie not found")
+    

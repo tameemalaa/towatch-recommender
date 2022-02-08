@@ -17,5 +17,11 @@ class Movie(BaseModel):
     poster : str
     
 
-class ver_request(BaseModel):
+class VerRequest(BaseModel):
     pwd : str
+    
+class MovieUpdate(BaseModel):
+    input : str
+    
+class MovieUpdateResponse(BaseModel):
+    movies : List[str]

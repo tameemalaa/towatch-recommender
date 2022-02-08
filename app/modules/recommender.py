@@ -1,17 +1,18 @@
 from pandas import DataFrame
+import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
 class recommender:
-    def __init__(self, data : DataFrame , features_label : str):
+    def __init__(self, data : list , features_label : str):
         """[summary]
 
         Args:
             data (DataFrame): [description]
             features_label (str): [description]
         """
-        self.data = data
+        self.data = DataFrame(data)
         self.features_label = features_label
         self.count_vectorizer = CountVectorizer()
         self.count_matrix =self.vectorize()
@@ -43,15 +44,21 @@ class recommender:
         self.sim_matrix = cosine_similarity(self.count_matrix)
         return self.sim_matrix
 
-    def recommend(self, id : int , n_recommendations : int = 1):
+    def recommend(self, id : str , n_recommendations : int = 1):
         """[summary]
 
         Args:
-            id (int): [description]
+            id (str): [description]
             n_recommendations (int, optional): [description]. Defaults to 1.
 
         Returns:
             [type]: [description]
         """
-        return (i[0] for i in list(enumerate(self.sim_matrix[id])).sort(key=lambda x:x[1], reverse=True)[:n_recommendations])
+        self.data.index.name = 'id'
+        z = pd.Series(self.data.index,index=self.data._id.values).to_dict()
+        y = pd.Series(self.data._id.values,index=self.data.index).to_dict()
+        m = list(enumerate(self.sim_matrix[z[id]]))
+        m.sort(key=lambda x:x[1], reverse=True)
+        m = m[1:n_recommendations+1]
+        return ( y[i[0]] for i in m)
 

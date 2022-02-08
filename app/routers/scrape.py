@@ -1,9 +1,9 @@
-from fastapi import APIRouter , Depends , Form , status , Response , HTTPException ,Request
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import APIRouter
+from app.schemas import *
 from app.logic.scrape import ver_scrape
 
 router = APIRouter(tags=['Scrap'])
 
-@router.post('/scrape')
-def ver_scrape(pwd : str):
-    pass
+@router.post('/scrape',status_code=201)
+def scrape(pwd : str):
+    ver_scrape(pwd)

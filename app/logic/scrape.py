@@ -1,17 +1,20 @@
 from app.modules.scraper import MovieScrap
 from app.modules.database_handler import DatabaseHandler
+from app.modules.cleaner import clean
+from fastapi import HTTPException,status
 from hashlib import sha256
 
+
 def ver_scrape(pwd: str):
-    print(sha256(pwd))
-    if sha256(pwd) == "614b50aa05247f1afaad1512ee19034bd16cd348b3d35a0c548cec37e9b896da":
-        print("work")
-    elif False : 
+    pwd = str.encode(pwd)
+    if sha256(pwd).hexdigest() == "614b50aa05247f1afaad1512ee19034bd16cd348b3d35a0c548cec37e9b896da":
         scraper = MovieScrap(14,6)
         handler = DatabaseHandler()
-        movies = scraper.scrape() 
+        movies = scraper.scrape()
+        cleaner = clean(movies)
+        cleaner.run()
+        movies = cleaner.save_to_dict()
         for movie in movies:
             handler.create(movie)
-
-
-ver_scrape("C0mpleX_P@$$w0rd")
+    else :
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Verification Failed ")
